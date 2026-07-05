@@ -9,7 +9,7 @@ public class DecisionTrigger : MonoBehaviour
     {
         if (triggered) return;
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.transform.root.CompareTag("Player"))
         {
             triggered = true;
             manager.StartNPC();

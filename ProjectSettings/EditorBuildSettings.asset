@@ -4,8 +4,12 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Scenarios/Vrindha_ResidentialSafety.unity
+    guid: 7418005d5c8dd45459e2214547378539
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: ed20cdacc7648254b86c63ca44aaca65, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 62fd99722c8595440b889a08c969e294, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 17c7e388abcac0549a78cb9e76d5c801, type: 2}
+  m_UseUCBPForAssetBundles: 0

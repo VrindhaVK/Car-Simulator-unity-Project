@@ -20,10 +20,16 @@ public class IntersectionManager : MonoBehaviour
     private bool speedViolation = false;
     private bool rightOfWayViolation = false;
     private bool observationViolation = false;
+    private bool npcCollisionViolation = false;
 
     public void StartAssessment()
     {
         assessmentActive = true;
+
+        speedViolation = false;
+        rightOfWayViolation = false;
+        observationViolation = false;
+        npcCollisionViolation = false;
 
         if (rightLookChecker != null)
             rightLookChecker.StartChecking();
@@ -71,6 +77,16 @@ public class IntersectionManager : MonoBehaviour
             rightOfWayViolation = true;
     }
 
+    public void RecordNpcCollision()
+    {
+        if (!assessmentActive) return;
+
+        npcCollisionViolation = true;
+        rightOfWayViolation = true;
+
+        Debug.Log("NPC Collision Recorded");
+    }
+
     public void FinishAssessment()
     {
         assessmentActive = false;
@@ -89,6 +105,11 @@ public class IntersectionManager : MonoBehaviour
     public bool HasObservationViolation()
     {
         return observationViolation;
+    }
+
+    public bool HasNpcCollisionViolation()
+    {
+        return npcCollisionViolation;
     }
 
     public void ShowMessage(string title, string message, bool passed)

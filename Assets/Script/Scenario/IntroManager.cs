@@ -16,11 +16,18 @@ public class IntroManager : MonoBehaviour
     [Header("Driving Control")]
     public MonoBehaviour[] drivingScriptsToDisable;
 
+    [Header("Keyboard Test Buttons")]
+    public KeyCode englishKeyboardKey = KeyCode.E;
+    public KeyCode germanKeyboardKey = KeyCode.G;
+    public KeyCode skipIntroKey = KeyCode.S;
+
     [Header("Steering Wheel Buttons")]
-    public KeyCode englishButton = KeyCode.JoystickButton0;
-    public KeyCode germanButton = KeyCode.JoystickButton1;
+    public KeyCode englishWheelButton = KeyCode.JoystickButton0;
+    public KeyCode germanWheelButton = KeyCode.JoystickButton1;
+    public KeyCode skipWheelButton = KeyCode.JoystickButton2;
 
     private bool languageSelected = false;
+    private Coroutine introRoutine;
 
     void Start()
     {
@@ -29,30 +36,44 @@ public class IntroManager : MonoBehaviour
         if (languagePanel != null)
             languagePanel.SetActive(true);
 
-        if (languageText != null)
-        {
-            languageText.text =
-                "Select Language / Sprache wählen\n\n" +
-                "Steering Button 1 : English\n" +
-                "Steering Button 2 : Deutsch";
-        }
+        UpdateLanguageText();
     }
 
     void Update()
     {
-        if (languageSelected) return;
-
-        if (Input.GetKeyDown(englishButton))
+        if (!languageSelected)
         {
-            languageSelected = true;
-            StartCoroutine(PlayIntro(englishIntro));
+            if (Input.GetKeyDown(englishKeyboardKey) || Input.GetKeyDown(englishWheelButton))
+            {
+                languageSelected = true;
+                introRoutine = StartCoroutine(PlayIntro(englishIntro));
+            }
+
+            if (Input.GetKeyDown(germanKeyboardKey) || Input.GetKeyDown(germanWheelButton))
+            {
+                languageSelected = true;
+                introRoutine = StartCoroutine(PlayIntro(germanIntro));
+            }
         }
 
-        if (Input.GetKeyDown(germanButton))
+        if (languageSelected && (Input.GetKeyDown(skipIntroKey) || Input.GetKeyDown(skipWheelButton)))
         {
-            languageSelected = true;
-            StartCoroutine(PlayIntro(germanIntro));
+            SkipIntro();
         }
+    }
+
+    private void UpdateLanguageText()
+    {
+        if (languageText == null) return;
+
+        languageText.text =
+            "<size=130%><b>SELECT LANGUAGE</b></size>\n" +
+            "<size=110%>SPRACHE WÄHLEN</size>\n\n" +
+            "<b>English</b>\n" +
+            "Keyboard: E | Wheel: Button 1\n\n" +
+            "<b>Deutsch</b>\n" +
+            "Keyboard: G | Wheel: Button 2\n\n" +
+            "<size=80%>Skip Intro: S | Wheel Button 3</size>";
     }
 
     private IEnumerator PlayIntro(AudioClip clip)
@@ -68,6 +89,22 @@ public class IntroManager : MonoBehaviour
         }
 
         EnableDriving();
+    }
+
+    private void SkipIntro()
+    {
+        if (introRoutine != null)
+            StopCoroutine(introRoutine);
+
+        if (audioSource != null && audioSource.isPlaying)
+            audioSource.Stop();
+
+        if (languagePanel != null)
+            languagePanel.SetActive(false);
+
+        EnableDriving();
+
+        Debug.Log("Intro skipped");
     }
 
     private void DisableDriving()

@@ -11,7 +11,7 @@ public class FinalAssessmentTrigger : MonoBehaviour
     {
         if (triggered) return;
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.transform.root.CompareTag("Player"))
         {
             triggered = true;
             ShowFinalReport();
@@ -25,6 +25,7 @@ public class FinalAssessmentTrigger : MonoBehaviour
         bool speedViolation = intersectionManager.HasSpeedViolation();
         bool rightOfWayViolation = intersectionManager.HasRightOfWayViolation();
         bool observationViolation = intersectionManager.HasObservationViolation();
+        bool npcCollision = intersectionManager.HasNpcCollisionViolation();
         bool childCollision = childHazardManager.HasChildCollision();
 
         string violations = "";
@@ -37,10 +38,7 @@ public class FinalAssessmentTrigger : MonoBehaviour
             violations += "- Exceeded residential speed limit (30 km/h)\n";
             recommendations += "- Maintain speeds below 30 km/h in residential areas.\n";
         }
-        else
-        {
-            strengths += "- Maintained safe residential speed\n";
-        }
+        else strengths += "- Maintained safe residential speed\n";
 
         if (rightOfWayViolation)
         {
@@ -48,10 +46,7 @@ public class FinalAssessmentTrigger : MonoBehaviour
             violations += "- Failed to yield according to Right-before-Left rule\n";
             recommendations += "- Always check and yield to traffic approaching from the right.\n";
         }
-        else
-        {
-            strengths += "- Correctly yielded according to Right-before-Left rule\n";
-        }
+        else strengths += "- Correctly yielded according to Right-before-Left rule\n";
 
         if (observationViolation)
         {
@@ -59,10 +54,15 @@ public class FinalAssessmentTrigger : MonoBehaviour
             violations += "- Failed to observe traffic from the right\n";
             recommendations += "- Perform a visual check before entering unsignalled intersections.\n";
         }
-        else
+        else strengths += "- Observed traffic from the right\n";
+
+        if (npcCollision)
         {
-            strengths += "- Observed traffic from the right\n";
+            score -= 40;
+            violations += "- Collision with priority vehicle\n";
+            recommendations += "- Avoid collisions with vehicles having right of way.\n";
         }
+        else strengths += "- Avoided collision with priority vehicle\n";
 
         if (childCollision)
         {
@@ -70,23 +70,18 @@ public class FinalAssessmentTrigger : MonoBehaviour
             violations += "- Collision with child pedestrian\n";
             recommendations += "- Anticipate hidden pedestrians near parked vehicles.\n";
         }
-        else
-        {
-            strengths += "- Avoided collision with child pedestrian\n";
-        }
+        else strengths += "- Avoided collision with child pedestrian\n";
 
         strengths += "- Maintained lane position\n";
 
-        if (score < 0)
-            score = 0;
+        if (score < 0) score = 0;
 
         bool passed = violations == "";
 
         string title = passed ? "ASSESSMENT PASSED" : "ASSESSMENT FAILED";
 
-        string message = "";
-
-        message += "<size=125%><b>Final Score: " + score + " / 100</b></size>\n\n";
+        string message =
+            "<size=125%><b>Final Score: " + score + " / 100</b></size>\n\n";
 
         if (violations != "")
         {
@@ -98,11 +93,7 @@ public class FinalAssessmentTrigger : MonoBehaviour
         message += strengths + "\n";
 
         message += "<color=#FFD700><b>Recommendations</b></color>\n";
-
-        if (recommendations != "")
-            message += recommendations;
-        else
-            message += "Excellent defensive driving performance.";
+        message += recommendations != "" ? recommendations : "Excellent defensive driving performance.";
 
         intersectionManager.ShowMessage(title, message, passed);
     }
